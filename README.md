@@ -65,17 +65,13 @@ SCT_WD_4/
 ├── README.md
 │
 └── appinterface.png
-     
+
 👨‍💻 Author
 
 Akshay K S
 
 📧 Email: ksakshay2004@gmail.com
-
 🔗 GitHub: https://github.com/ksakshay2004-lang
 
-
-
-⭐ Acknowledgment
-
-This project was built as part of the SkillCraft Technology Internship Program.
+Acknowledgment
+This project was developed as part of the SkillCraft Technology Internship Program.

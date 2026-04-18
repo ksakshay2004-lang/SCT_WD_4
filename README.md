@@ -20,7 +20,6 @@ This application helps users efficiently manage daily tasks with features like c
 ## 🖼️ App Interface
 
 ![TaskFlow App Interface](./appinterface.png)
-
 ---
 
 ## 🎯 Features
@@ -66,8 +65,8 @@ SCT_WD_4/
 ├── index.html
 ├── README.md
 │
-└── screenshots/
-    └── appinterface.png
+└── appinterface.png
+     
 👨‍💻 Author
 
 Akshay K S

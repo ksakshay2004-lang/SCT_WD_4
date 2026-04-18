@@ -19,7 +19,7 @@ This application helps users efficiently manage daily tasks with features like c
 
 ## 🖼️ App Interface
 
-![TaskFlow App Interface](./screenshots/appinterface.png)
+![TaskFlow App Interface](./appinterface.png)
 
 ---
 

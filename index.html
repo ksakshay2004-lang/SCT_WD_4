@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Smart To-Do with Click & Animation</title>
+  <style>
+    /* ---------- DARK THEME + ANIMATIONS ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, 'BlinkMacSystemFont', 'Roboto', sans-serif;
+    }
+
+    body {
+      background: #0a0e12;
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-container {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      background: #12161c;
+      border-radius: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(66, 153, 225, 0.1);
+      overflow: hidden;
+    }
+
+    .app-header {
+      background: #0b0f14;
+      padding: 1.6rem 2rem;
+      border-bottom: 1px solid #1f2a3a;
+    }
+
+    .app-header h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #eef4ff;
+    }
+
+    .app-header h1::before {
+      content: "🌙";
+      font-size: 1.8rem;
+    }
+
+    .sub {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      margin-top: 6px;
+      color: #9aaebf;
+    }
+
+    .add-task-panel {
+      padding: 1.6rem 2rem 1.2rem 2rem;
+      background: #12161c;
+      border-bottom: 1px solid #1e2a36;
+    }
+
+    .task-input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .input-group {
+      flex: 3;
+      min-width: 160px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #8ba3bc;
+      margin-bottom: 5px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid #253341;
+      border-radius: 18px;
+      font-size: 0.9rem;
+      background: #0f1419;
+      color: #eef4ff;
+      transition: 0.2s;
+      outline: none;
+    }
+
+    .input-group input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+      background: #141b23;
+    }
+
+    .datetime-row {
+      display: flex;
+      flex: 2;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .datetime-row .input-group {
+      flex: 1;
+    }
+
+    .btn-add {
+      background: #1e2f40;
+      border: none;
+      padding: 0.7rem 1.8rem;
+      border-radius: 40px;
+      font-weight: 600;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-add:hover {
+      background: #2c4058;
+      transform: scale(0.97);
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 0.9rem 2rem;
+      background: #0e1319;
+      border-bottom: 1px solid #1e2a36;
+      gap: 12px;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      background: #1a2129;
+      padding: 4px;
+      border-radius: 60px;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: #bdd4e7;
+      transition: 0.1s;
+    }
+
+    .filter-btn.active {
+      background: #2d4055;
+      color: white;
+    }
+
+    .task-counter {
+      font-size: 0.8rem;
+      background: #1a212b;
+      padding: 0.3rem 0.9rem;
+      border-radius: 30px;
+      font-weight: 500;
+      color: #bbd4f0;
+    }
+
+    .tasks-container {
+      padding: 1.2rem 1.5rem 2rem 1.5rem;
+      max-height: 55vh;
+      overflow-y: auto;
+      background: #12161c;
+    }
+
+    .tasks-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .tasks-container::-webkit-scrollbar-track {
+      background: #1a2129;
+      border-radius: 10px;
+    }
+    .tasks-container::-webkit-scrollbar-thumb {
+      background: #3a4c62;
+      border-radius: 10px;
+    }
+
+    /* TASK CARD - clickable + smooth transitions */
+    .task-card {
+      background: #0f151c;
+      border-radius: 1.5rem;
+      margin-bottom: 12px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+      border: 1px solid #232e3b;
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Green ripple / glow animation when toggling */
+    .task-card.completed-transition {
+      animation: greenFlash 0.4s ease-out;
+    }
+
+    @keyframes greenFlash {
+      0% {
+        background: #0f151c;
+        border-left-color: #232e3b;
+      }
+      50% {
+        background: #1a3a2a;
+        border-left-color: #2c9b6e;
+        box-shadow: 0 0 12px rgba(44, 155, 110, 0.5);
+      }
+      100% {
+        background: #0f151c;
+        border-left-color: #232e3b;
+      }
+    }
+
+    .task-card:hover {
+      border-color: #3b5a7c;
+      background: #121a22;
+      transform: translateX(3px);
+    }
+
+    /* Completed task styling: green line + softer look */
+    .task-card.completed {
+      border-left: 4px solid #2c9b6e;
+      opacity: 0.88;
+      background: #0d131a;
+    }
+
+    .task-card.completed .task-title {
+      text-decoration: line-through;
+      text-decoration-color: #2c9b6e;
+      text-decoration-thickness: 2px;
+      color: #7c9ab0;
+      transition: all 0.2s ease;
+    }
+
+    /* Checkbox styling */
+    .task-check {
+      flex-shrink: 0;
+      pointer-events: auto;
+    }
+
+    .task-check input {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: #2c9b6e;
+      transition: transform 0.1s ease;
+    }
+
+    .task-check input:active {
+      transform: scale(0.9);
+    }
+
+    .task-content {
+      flex: 4;
+      min-width: 180px;
+      pointer-events: none;  /* makes title area not block click on card, but checkbox remains clickable */
+    }
+
+    .task-title {
+      font-weight: 700;
+      font-size: 1rem;
+      word-break: break-word;
+      color: #eef4ff;
+      transition: all 0.2s ease;
+    }
+
+    .task-datetime {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      font-size: 0.7rem;
+      color: #8aaec9;
+    }
+
+    .task-datetime span {
+      background: #19232e;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Buttons area - pointer events auto so they remain clickable */
+    .task-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-left: auto;
+      flex-shrink: 0;
+      pointer-events: auto;
+    }
+
+    .edit-btn, .delete-btn {
+      background: none;
+      border: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 40px;
+      transition: 0.15s;
+      font-weight: 500;
+    }
+
+    .edit-btn {
+      color: #6ea8fe;
+    }
+    .edit-btn:hover {
+      background: #1e2c3f;
+      transform: scale(1.02);
+    }
+    .delete-btn {
+      color: #f28b82;
+    }
+    .delete-btn:hover {
+      background: #2a1e1e;
+      transform: scale(1.02);
+    }
+
+    .empty-message {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #7f95ae;
+      font-weight: 500;
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(6px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: #12181f;
+      width: 90%;
+      max-width: 450px;
+      border-radius: 2rem;
+      padding: 1.8rem;
+      border: 1px solid #2c3e4f;
+      animation: modalPop 0.2s ease;
+    }
+
+    @keyframes modalPop {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+      color: #eef4ff;
+    }
+
+    .modal-card input {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.8rem;
+      border-radius: 1.2rem;
+      border: 1px solid #2d4055;
+      background: #0c1117;
+      color: #eef4ff;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 1rem;
+    }
+
+    .modal-buttons button {
+      padding: 0.5rem 1.2rem;
+      border-radius: 2rem;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .save-modal {
+      background: #2c4c6e;
+      color: white;
+    }
+    .save-modal:hover {
+      background: #3a6088;
+    }
+    .cancel-modal {
+      background: #262f39;
+      color: #ccdeee;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .task-card { flex-direction: column; align-items: stretch; }
+      .task-actions { margin-left: 0; justify-content: flex-end; }
+      .datetime-row { width: 100%; }
+      .btn-add { width: 100%; justify-content: center; margin-top: 6px; }
+      .task-content { pointer-events: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="app-header">
+    <h1>NightTask</h1>
+    <div class="sub">✨ click anywhere on task → smooth green complete ✨</div>
+  </div>
+
+  <div class="add-task-panel">
+    <div class="task-input-row">
+      <div class="input-group" style="flex:2">
+        <label>📌 Task title</label>
+        <input type="text" id="taskTitleInput" placeholder="e.g., Finish report, call client..." autocomplete="off">
+      </div>
+      <div class="datetime-row">
+        <div class="input-group">
+          <label>📅 Date</label>
+          <input type="date" id="taskDateInput">
+        </div>
+        <div class="input-group">
+          <label>⏰ Time</label>
+          <input type="time" id="taskTimeInput">
+        </div>
+      </div>
+      <button class="btn-add" id="addTaskBtn">+ Add task</button>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="filter-group">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="active">Active</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
+    </div>
+    <div class="task-counter" id="taskCounter">0 tasks</div>
+  </div>
+
+  <div class="tasks-container" id="tasksContainer">
+    <div class="empty-message">🌙 click on any task to mark complete with green magic ✨</div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal">
+  <div class="modal-card">
+    <h3>✏️ Edit task</h3>
+    <input type="hidden" id="editTaskId">
+    <label>Task title</label>
+    <input type="text" id="editTitle" placeholder="Task title">
+    <label>Date</label>
+    <input type="date" id="editDate">
+    <label>Time</label>
+    <input type="time" id="editTime">
+    <div class="modal-buttons">
+      <button class="cancel-modal" id="closeModalBtn">Cancel</button>
+      <button class="save-modal" id="saveEditBtn">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ======================== JAVASCRIPT ========================
+  (function() {
+    // ---------- STATE ----------
+    let tasks = [];
+    let currentFilter = "all";
+    let editTaskId = null;
+
+    // DOM elements
+    const taskTitleInput = document.getElementById('taskTitleInput');
+    const taskDateInput = document.getElementById('taskDateInput');
+    const taskTimeInput = document.getElementById('taskTimeInput');
+    const addBtn = document.getElementById('addTaskBtn');
+    const tasksContainer = document.getElementById('tasksContainer');
+    const taskCounterSpan = document.getElementById('taskCounter');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const editModal = document.getElementById('editModal');
+    const editTitleInput = document.getElementById('editTitle');
+    const editDateInput = document.getElementById('editDate');
+    const editTimeInput = document.getElementById('editTime');
+    const saveEditBtn = document.getElementById('saveEditBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // Helper: set default date & time
+    function setDefaultDateTime() {
+      if (!taskDateInput.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        taskDateInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+      if (!taskTimeInput.value) {
+        const now = new Date();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        hours = hours.toString().padStart(2, '0');
+        minutes = minutes.toString().padStart(2, '0');
+        taskTimeInput.value = `${hours}:${minutes}`;
+      }
+    }
+
+    // Load / Save
+    function loadTasksFromStorage() {
+      const stored = localStorage.getItem('nightTasks');
+      if (stored) {
+        tasks = JSON.parse(stored);
+      } else {
+        const today = new Date().toISOString().slice(0,10);
+        const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0,10);
+        tasks = [
+          { id: Date.now() + 101, title: "✨ Click me to complete ✨", completed: false, date: today, time: "18:30" },
+          { id: Date.now() + 102, title: "Prepare weekly report", completed: true, date: today, time: "10:15" },
+          { id: Date.now() + 103, title: "Team sync meeting", completed: false, date: tomorrow, time: "09:00" },
+          { id: Date.now() + 104, title: "Experience green animation", completed: false, date: today, time: "14:45" }
+        ];
+      }
+    }
+
+    function saveToLocalStorage() {
+      localStorage.setItem('nightTasks', JSON.stringify(tasks));
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'no date';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`;
+      return dateStr;
+    }
+
+    // --- GREEN ANIMATION HELPER ---
+    function addGreenFlash(element) {
+      if (!element) return;
+      element.classList.add('completed-transition');
+      setTimeout(() => {
+        element.classList.remove('completed-transition');
+      }, 400);
+    }
+
+    // --- TOGGLE COMPLETE with animation + smooth strike-through ---
+    function toggleComplete(taskId, taskCardElement = null) {
+      const taskIndex = tasks.findIndex(t => t.id === taskId);
+      if (taskIndex === -1) return;
+      
+      // Toggle the completed state
+      tasks[taskIndex].completed = !tasks[taskIndex].completed;
+      saveToLocalStorage();
+      
+      // If we have the DOM element, apply green flash animation
+      if (taskCardElement) {
+        addGreenFlash(taskCardElement);
+      } else {
+        // fallback: find the element if not provided (e.g., from checkbox)
+        const card = document.querySelector(`.task-card[data-task-id="${taskId}"]`);
+        if (card) addGreenFlash(card);
+      }
+      
+      // Re-render to update visual style (strikethrough + green border)
+      renderTasks();
+      
+      // tiny extra: after render, ensure the card gets a subtle extra glow for smoothness
+      setTimeout(() => {
+        const newCard = document.querySelector(`.task-card[data-task-id="${taskId}"]`);
+        if (newCard && tasks[taskIndex].completed) {
+          newCard.style.transition = 'all 0.2s ease';
+        }
+      }, 50);
+    }
+
+    // Delete task
+    function deleteTaskById(taskId) {
+      if (confirm('Delete this task?')) {
+        tasks = tasks.filter(t => t.id !== taskId);
+        saveToLocalStorage();
+        renderTasks();
+      }
+    }
+
+    // Add new task
+    function addNewTask() {
+      let title = taskTitleInput.value.trim();
+      if (title === "") {
+        alert("Please enter a task title!");
+        return;
+      }
+      let date = taskDateInput.value;
+      let time = taskTimeInput.value;
+      if (!date) {
+        const today = new Date();
+        date = today.toISOString().slice(0,10);
+      }
+      if (!time) time = "12:00";
+      
+      const newTask = {
+        id: Date.now(),
+        title: title,
+        completed: false,
+        date: date,
+        time: time,
+      };
+      tasks.push(newTask);
+      saveToLocalStorage();
+      taskTitleInput.value = "";
+      setDefaultDateTime();
+      renderTasks();
+    }
+
+    // Edit modal logic
+    function openEditModal(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+      editTaskId = taskId;
+      editTitleInput.value = task.title;
+      editDateInput.value = task.date || "";
+      editTimeInput.value = task.time || "";
+      editModal.style.display = "flex";
+    }
+
+    function closeModal() {
+      editModal.style.display = "none";
+      editTaskId = null;
+    }
+
+    function saveEditedTask() {
+      if (!editTaskId) return;
+      const newTitle = editTitleInput.value.trim();
+      if (newTitle === "") {
+        alert("Task title cannot be empty");
+        return;
+      }
+      const newDate = editDateInput.value;
+      const newTime = editTimeInput.value;
+      const taskIndex = tasks.findIndex(t => t.id === editTaskId);
+      if (taskIndex !== -1) {
+        tasks[taskIndex].title = newTitle;
+        if (newDate) tasks[taskIndex].date = newDate;
+        if (newTime) tasks[taskIndex].time = newTime;
+        saveToLocalStorage();
+        renderTasks();
+      }
+      closeModal();
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      filterBtns.forEach(btn => {
+        if (btn.getAttribute('data-filter') === filter) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      renderTasks();
+    }
+
+    function updateCounter() {
+      const total = tasks.length;
+      const activeCount = tasks.filter(t => !t.completed).length;
+      const completedCount = tasks.filter(t => t.completed).length;
+      if (currentFilter === 'all') taskCounterSpan.innerText = `${total} total (${activeCount} active, ${completedCount} done)`;
+      else if (currentFilter === 'active') taskCounterSpan.innerText = `${activeCount} active tasks`;
+      else taskCounterSpan.innerText = `${completedCount} completed tasks`;
+    }
+
+    // --- RENDER: card with data-task-id for easy click handling ---
+    function renderTasks() {
+      let filteredTasks = [];
+      if (currentFilter === 'all') filteredTasks = [...tasks];
+      else if (currentFilter === 'active') filteredTasks = tasks.filter(t => !t.completed);
+      else filteredTasks = tasks.filter(t => t.completed);
+
+      filteredTasks.sort((a,b) => {
+        const dateA = `${a.date}T${a.time || "00:00"}`;
+        const dateB = `${b.date}T${b.time || "00:00"}`;
+        return new Date(dateA) - new Date(dateB);
+      });
+
+      if (filteredTasks.length === 0) {
+        tasksContainer.innerHTML = `<div class="empty-message">✨ No tasks · add one & click anywhere for green magic ✨</div>`;
+        updateCounter();
+        return;
+      }
+
+      let html = '';
+      filteredTasks.forEach(task => {
+        const isCompleted = task.completed;
+        const completedClass = isCompleted ? 'completed' : '';
+        const checkedAttr = isCompleted ? 'checked' : '';
+        const displayDate = formatDate(task.date);
+        const displayTime = task.time ? task.time : '--:--';
+        
+        html += `
+          <div class="task-card ${completedClass}" data-task-id="${task.id}">
+            <div class="task-check">
+              <input type="checkbox" class="task-checkbox" data-id="${task.id}" ${checkedAttr}>
+            </div>
+            <div class="task-content">
+              <div class="task-title">${escapeHtml(task.title)}</div>
+              <div class="task-datetime">
+                <span>📆 ${escapeHtml(displayDate)}</span>
+                <span>⏱️ ${escapeHtml(displayTime)}</span>
+              </div>
+            </div>
+            <div class="task-actions">
+              <button class="edit-btn" data-id="${task.id}">✏️ Edit</button>
+              <button class="delete-btn" data-id="${task.id}">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+      });
+      
+      tasksContainer.innerHTML = html;
+      updateCounter();
+    }
+
+    // --- EVENT DELEGATION: CLICK ANYWHERE ON TASK CARD (EXCLUDING BUTTONS/CHECKBOX if needed, but we'll handle gracefully)
+    tasksContainer.addEventListener('click', (e) => {
+      // Find the closest task-card parent
+      const taskCard = e.target.closest('.task-card');
+      if (!taskCard) return;
+      
+      const taskIdAttr = taskCard.getAttribute('data-task-id');
+      if (!taskIdAttr) return;
+      const taskId = parseInt(taskIdAttr);
+      
+      // If the click is on edit button, delete button, or checkbox, we don't want to double-toggle.
+      // But we still want to allow checkbox to work naturally (change event). For buttons, we avoid toggling.
+      const isEditBtn = e.target.closest('.edit-btn');
+      const isDeleteBtn = e.target.closest('.delete-btn');
+      const isCheckbox = e.target.closest('.task-checkbox');
+      
+      if (isEditBtn) {
+        e.stopPropagation();
+        openEditModal(taskId);
+        return;
+      }
+      if (isDeleteBtn) {
+        e.stopPropagation();
+        deleteTaskById(taskId);
+        return;
+      }
+      if (isCheckbox) {
+        // Checkbox change event will be handled separately, we just prevent double handling.
+        // But we also need to make sure the toggle runs only once. We'll let the 'change' event do the toggle.
+        // However we must not call toggle twice. So just return here, change event triggers.
+        return;
+      }
+      
+      // For any other click on card (text, padding, anywhere except buttons/checkbox) -> toggle complete with animation
+      e.preventDefault();
+      // Get current completed state before toggling for nice feedback
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        // Add green flash right away
+        addGreenFlash(taskCard);
+        // Toggle state
+        task.completed = !task.completed;
+        saveToLocalStorage();
+        renderTasks();
+      }
+    });
+    
+    // Separate checkbox change handler (sync with toggle logic)
+    tasksContainer.addEventListener('change', (e) => {
+      if (e.target && e.target.classList.contains('task-checkbox')) {
+        e.stopPropagation();
+        const taskId = parseInt(e.target.getAttribute('data-id'));
+        const taskCard = e.target.closest('.task-card');
+        const task = tasks.find(t => t.id === taskId);
+        if (task) {
+          // Add green flash for smoothness
+          if (taskCard) addGreenFlash(taskCard);
+          task.completed = !task.completed;
+          saveToLocalStorage();
+          renderTasks();
+        }
+      }
+    });
+
+    // Add task button
+    addBtn.addEventListener('click', addNewTask);
+    taskTitleInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addNewTask();
+    });
+
+    // Filter buttons
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filterVal = btn.getAttribute('data-filter');
+        setFilter(filterVal);
+      });
+    });
+
+    // Modal events
+    saveEditBtn.addEventListener('click', saveEditedTask);
+    closeModalBtn.addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => {
+      if (e.target === editModal) closeModal();
+    });
+
+    // Initialize app
+    loadTasksFromStorage();
+    setDefaultDateTime();
+    renderTasks();
+  })();
+</script>
+</body>
+</html>
